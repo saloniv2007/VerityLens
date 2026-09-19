@@ -1,0 +1,6 @@
+Flask
+Pillow
+transformers
+torch
+requests
+opencv-python
