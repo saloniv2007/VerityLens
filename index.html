@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>VerityLens — AI Reality Check</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<nav class="navbar">
+
+    <a href="{{ url_for('home') }}" class="logo">
+        <span class="logo-mark">V</span>
+        <span>VerityLens</span>
+    </a>
+
+    <div class="nav-links">
+        <a href="{{ url_for('home') }}" class="active">Home</a>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('history') }}">History</a>
+        <a href="#how-it-works">How It Works</a>
+
+        <button id="themeToggle"
+                class="theme-toggle"
+                onclick="toggleTheme()">
+            ☀️
+        </button>
+    </div>
+
+</nav>
+
+
+<main>
+
+<section class="hero">
+
+    <div class="hero-badge">
+        ✦ AI-Powered Reality Check
+    </div>
+
+    <h1>
+        See What's
+        <span>Real.</span>
+    </h1>
+
+    <p>
+        Analyze images, videos and accessible media URLs
+        to identify signs of AI-generated content.
+    </p>
+
+</section>
+
+
+{% if error %}
+
+<div class="alert error-alert">
+    <span>⚠</span>
+    <span>{{ error }}</span>
+</div>
+
+{% endif %}
+
+
+<section class="scanner-card">
+
+    <div class="scanner-tabs">
+
+        <button class="tab active"
+                onclick="showTab('image', this)">
+            🖼 Image
+        </button>
+
+        <button class="tab"
+                onclick="showTab('video', this)">
+            🎬 Video
+        </button>
+
+        <button class="tab"
+                onclick="showTab('url', this)">
+            🔗 URL
+        </button>
+
+    </div>
+
+
+    <!-- IMAGE -->
+
+    <form id="imageForm"
+          class="scan-form"
+          action="{{ url_for('predict') }}"
+          method="POST"
+          enctype="multipart/form-data">
+
+        <input type="hidden"
+               name="scan_type"
+               value="image">
+
+        <label class="upload-box"
+               for="imageInput">
+
+            <div class="upload-icon">
+                ↑
+            </div>
+
+            <h3>Drop your image here</h3>
+
+            <p>
+                or click to browse from your device
+            </p>
+
+            <span>
+                PNG • JPG • JPEG • WEBP
+            </span>
+
+            <input
+                type="file"
+                id="imageInput"
+                name="file"
+                accept=".png,.jpg,.jpeg,.webp"
+                onchange="previewImage(event)"
+                required
+            >
+
+        </label>
+
+
+        <div id="imagePreview"
+             class="preview-container hidden">
+
+            <img id="preview"
+                 src=""
+                 alt="Preview">
+
+            <div class="preview-info">
+                <strong>Image ready</strong>
+                <span>Click Analyze to continue</span>
+            </div>
+
+        </div>
+
+
+        <button type="submit"
+                class="primary-btn">
+
+            Analyze Image
+            <span>→</span>
+
+        </button>
+
+    </form>
+
+
+    <!-- VIDEO -->
+
+    <form id="videoForm"
+          class="scan-form hidden"
+          action="{{ url_for('predict') }}"
+          method="POST"
+          enctype="multipart/form-data">
+
+        <input type="hidden"
+               name="scan_type"
+               value="video">
+
+        <label class="upload-box"
+               for="videoInput">
+
+            <div class="upload-icon">
+                ▶
+            </div>
+
+            <h3>Upload your video</h3>
+
+            <p>
+                We'll sample multiple frames for analysis
+            </p>
+
+            <span>
+                MP4 • MOV • AVI • MKV • WEBM
+            </span>
+
+            <input
+                type="file"
+                id="videoInput"
+                name="file"
+                accept=".mp4,.mov,.avi,.mkv,.webm"
+                required
+            >
+
+        </label>
+
+
+        <button type="submit"
+                class="primary-btn">
+
+            Analyze Video
+            <span>→</span>
+
+        </button>
+
+    </form>
+
+
+    <!-- URL -->
+
+    <form id="urlForm"
+          class="scan-form hidden"
+          action="{{ url_for('predict') }}"
+          method="POST">
+
+        <input type="hidden"
+               name="scan_type"
+               value="url">
+
+        <div class="url-box">
+
+            <div class="url-icon">
+                🔗
+            </div>
+
+            <label>
+                Paste a media URL
+            </label>
+
+            <input
+                type="url"
+                name="url"
+                placeholder="https://example.com/image.jpg"
+                required
+            >
+
+            <p>
+                Direct image/video links and some accessible
+                webpage media are supported.
+            </p>
+
+        </div>
+
+
+        <button type="submit"
+                class="primary-btn">
+
+            Analyze URL
+            <span>→</span>
+
+        </button>
+
+    </form>
+
+
+    <div id="loading"
+         class="loading hidden">
+
+        <div class="spinner"></div>
+
+        <strong>Analyzing your content...</strong>
+
+        <span>
+            This may take a few moments.
+        </span>
+
+    </div>
+
+</section>
+
+
+<section class="features"
+         id="how-it-works">
+
+    <div class="section-heading">
+
+        <span>HOW IT WORKS</span>
+
+        <h2>
+            Reality checking,
+            <span>simplified.</span>
+        </h2>
+
+    </div>
+
+
+    <div class="feature-grid">
+
+        <div class="feature-card">
+
+            <div class="feature-number">
+                01
+            </div>
+
+            <div class="feature-icon">
+                ↑
+            </div>
+
+            <h3>
+                Upload
+            </h3>
+
+            <p>
+                Upload an image or video,
+                or provide an accessible media URL.
+            </p>
+
+        </div>
+
+
+        <div class="feature-card">
+
+            <div class="feature-number">
+                02
+            </div>
+
+            <div class="feature-icon">
+                ◈
+            </div>
+
+            <h3>
+                Analyze
+            </h3>
+
+            <p>
+                Our AI model examines visual patterns
+                and detects signs associated with generated media.
+            </p>
+
+        </div>
+
+
+        <div class="feature-card">
+
+            <div class="feature-number">
+                03
+            </div>
+
+            <div class="feature-icon">
+                ✓
+            </div>
+
+            <h3>
+                Reality Check
+            </h3>
+
+            <p>
+                Get a clear result with the detected label
+                and confidence level.
+            </p>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<footer>
+
+    <div class="footer-logo">
+        <span class="logo-mark">V</span>
+        VerityLens
+    </div>
+
+    <p>
+        AI Reality Check • Built for smarter digital awareness
+    </p>
+
+</footer>
+
+
+<script>
+
+const savedTheme =
+    localStorage.getItem("veritylens-theme");
+
+if (savedTheme === "light") {
+    document.body.classList.add("light");
+}
+
+function updateThemeIcon() {
+
+    const button =
+        document.getElementById("themeToggle");
+
+    if (!button) return;
+
+    button.textContent =
+        document.body.classList.contains("light")
+        ? "🌙"
+        : "☀️";
+}
+
+function toggleTheme() {
+
+    document.body.classList.toggle("light");
+
+    const theme =
+        document.body.classList.contains("light")
+        ? "light"
+        : "dark";
+
+    localStorage.setItem(
+        "veritylens-theme",
+        theme
+    );
+
+    updateThemeIcon();
+}
+
+
+function showTab(type, button) {
+
+    document
+        .querySelectorAll(".tab")
+        .forEach(tab => {
+            tab.classList.remove("active");
+        });
+
+    button.classList.add("active");
+
+    document
+        .querySelectorAll(".scan-form")
+        .forEach(form => {
+            form.classList.add("hidden");
+        });
+
+    document
+        .getElementById(type + "Form")
+        .classList.remove("hidden");
+}
+
+
+function previewImage(event) {
+
+    const file =
+        event.target.files[0];
+
+    if (!file) return;
+
+    const preview =
+        document.getElementById("preview");
+
+    preview.src =
+        URL.createObjectURL(file);
+
+    document
+        .getElementById("imagePreview")
+        .classList.remove("hidden");
+}
+
+
+document
+    .querySelectorAll(".scan-form")
+    .forEach(form => {
+
+        form.addEventListener(
+            "submit",
+            function () {
+
+                document
+                    .querySelectorAll(".scan-form")
+                    .forEach(f => {
+                        f.classList.add("hidden");
+                    });
+
+                document
+                    .querySelector(".scanner-tabs")
+                    .classList.add("hidden");
+
+                document
+                    .getElementById("loading")
+                    .classList.remove("hidden");
+            }
+        );
+
+    });
+
+
+updateThemeIcon();
+
+</script>
+
+</body>
+</html>
